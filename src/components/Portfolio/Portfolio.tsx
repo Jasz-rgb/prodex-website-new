@@ -5,8 +5,13 @@ import { portfolioData, portfolioYears } from "./portfolioData";
 export default function Portfolio() {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeYear = portfolioYears[activeIndex];
-
+  
   const progress = (activeIndex / (portfolioYears.length - 1)) * 100;
+  const [sparkKey, setSparkKey] = useState(0);
+
+  useEffect(() => {
+    setSparkKey((k) => k + 1);
+  }, [activeIndex]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -122,9 +127,11 @@ export default function Portfolio() {
         }
 
         .timeline-line {
-          height: 3px;
-          background: rgba(0, 229, 255, 0.2);
+          position: relative;
+          height: 4px;
+          background: rgba(0, 229, 255, 0.15);
           border-radius: 999px;
+          overflow: visible;
         }
 
         .timeline-progress {
@@ -132,6 +139,13 @@ export default function Portfolio() {
           background: linear-gradient(90deg, #00e5ff, #1da1f2);
           border-radius: 999px;
           transition: width 0.5s ease;
+          position: absolute;
+          inset: 0;
+          width: 0%;
+          box-shadow:
+            0 0 12px rgba(0, 229, 255, 0.9),
+            0 0 28px rgba(0, 229, 255, 0.6);
+          animation: burn-flicker 1.2s infinite linear;
         }
 
         .timeline-years {
@@ -147,13 +161,101 @@ export default function Portfolio() {
           padding: 0.45rem 1rem;
           border-radius: 999px;
           cursor: pointer;
+          position: relative;
         }
+        .timeline-year::before {
+          content: "";
+          position: absolute;
+          top: -22px;              /* distance from year pill to main line */
+          left: 50%;
+          transform: translateX(-50%);
+          width: 2px;
+          height: 20px;
 
+          background: linear-gradient(
+            to bottom,
+            rgba(0, 229, 255, 0.6),
+            rgba(0, 229, 255, 0.15)
+          );
+        }
+        
         .timeline-year.active {
           background: linear-gradient(135deg, #00e5ff, #1da1f2);
           color: #031018;
           border: none;
         }
+        /* flickering fuse effect */
+        @keyframes burn-flicker {
+          0% { filter: brightness(1); }
+          50% { filter: brightness(1.3); }
+          100% { filter: brightness(1); }
+        }
+
+        /* sparks container */
+        .spark {
+        position: absolute;
+        right: -10px;
+        top: 50%;
+
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+
+        background: radial-gradient(
+          circle,
+          #ffffff 0%,
+          #7ff6ff 30%,
+          #00e5ff 55%,
+          rgba(0, 229, 255, 0.35) 100%
+        );
+
+        transform: translateY(-50%);
+        pointer-events: none;
+
+        box-shadow:
+          0 0 12px rgba(255, 255, 255, 1),
+          0 0 28px rgba(0, 229, 255, 0.9),
+          0 0 55px rgba(0, 229, 255, 0.7),
+          0 0 90px rgba(0, 229, 255, 0.4);
+
+        animation: spark-burn 0.9s infinite ease-in-out;
+      }
+
+        transform: translateX(-50%);
+        pointer-events: none;
+
+        box-shadow:
+          0 0 12px rgba(255, 255, 255, 1),
+          0 0 28px rgba(0, 229, 255, 0.9),
+          0 0 55px rgba(0, 229, 255, 0.7),
+          0 0 85px rgba(0, 229, 255, 0.4);
+
+        animation: spark-burst 0.6s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+      }
+
+
+      @keyframes spark-burn {
+      0% {
+        opacity: 0.9;
+        filter: brightness(1);
+        transform: translateY(-50%) scale(0.9);
+      }
+
+      50% {
+        opacity: 1;
+        filter: brightness(1.5);
+        transform: translateY(-50%) scale(1.15);
+      }
+
+      100% {
+        opacity: 0.85;
+        filter: brightness(1.1);
+        transform: translateY(-50%) scale(1);
+      }
+    }
+
+    }
+
 
         @media (max-width: 1024px) {
           .portfolio-grid { column-count: 2; }
@@ -183,7 +285,9 @@ export default function Portfolio() {
             <div
               className="timeline-progress"
               style={{ width: `${progress}%` }}
-            />
+            >
+              <span key={sparkKey} className="spark" />
+            </div>
           </div>
 
           <div className="timeline-years">
