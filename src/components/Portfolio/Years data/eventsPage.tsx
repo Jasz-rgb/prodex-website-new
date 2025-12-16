@@ -1,12 +1,15 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { eventsData } from "./eventsData";
 import logo from "../../../assets/prodex.png";
 
 export default function EventPage() {
-  const { slug } = useParams<{ slug: string }>();
-  const event = slug
-  ? eventsData.find((e) => e.slug === slug)
-  : undefined;
+  const { slug } = useParams();
+  const [searchParams] = useSearchParams(); // use search params link
+
+  const fromYear = searchParams.get("fromYear") || "All"; // restore year
+
+  const event = eventsData.find((e) => e.slug === slug);
+
   const fallbackImage = logo;
 
   if (!event) {
@@ -15,6 +18,7 @@ export default function EventPage() {
 
   return (
     <>
+      {/* ================== STYLES (unchanged) ================== */}
       <style>{`
         #main {
           min-height: 100vh;
@@ -149,7 +153,6 @@ export default function EventPage() {
           font-size: 2.2rem;
           font-weight: 700;
           color: #eafaff;
-          text-shadow: 0 0 14px rgba(0, 229, 255, 0.18);
         }
 
         .portfolio-details {
@@ -162,7 +165,6 @@ export default function EventPage() {
           display: grid;
           grid-template-columns: 1.2fr 0.8fr;
           gap: 3rem;
-          align-items: start;
         }
 
         .portfolio-details-carousel img {
@@ -186,34 +188,9 @@ export default function EventPage() {
             inset 0 0 0 1px rgba(0, 229, 255, 0.2);
         }
 
-        .portfolio-info h3 {
-          margin-bottom: 1.2rem;
-          font-size: 1.4rem;
-          color: #00e5ff;
-        }
-
-        .portfolio-info li {
-          margin-bottom: 0.7rem;
-          font-size: 0.95rem;
-          color: #bfefff;
-        }
-
         .portfolio-description {
           grid-column: 1 / -1;
-          max-width: 1200px;
-          margin: 4rem auto 0;
-        }
-
-        .portfolio-description h2 {
-          font-size: 1.8rem;
-          margin-bottom: 1rem;
-          color: #eafaff;
-        }
-
-        .portfolio-description p {
-          font-size: 1.05rem;
-          line-height: 1.8;
-          color: #9fb9c9;
+          margin-top: 4rem;
         }
 
         @media (max-width: 900px) {
@@ -223,6 +200,7 @@ export default function EventPage() {
         }
       `}</style>
 
+      {/* ================== HEADER ================== */}
       <header className="event-header">
         <div className="event-header-inner">
           <div className="event-logo">
@@ -235,19 +213,12 @@ export default function EventPage() {
             <Link to="/">Home</Link>
             <span>›</span>
 
-            <div className="breadcrumb-dropdown">
-              <span className="breadcrumb-trigger">
-                Portfolio <span className="arrow">▾</span>
-              </span>
-
-              <ul className="breadcrumb-menu">
-                {eventsData.map((e) => (
-                  <li key={e.slug}>
-                    <Link to={`/years/${e.slug}`}>{e.title}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {/* Go back to same year */}
+            <Link
+              to={`/${fromYear !== "All" ? `?year=${fromYear}` : ""}#portfolio`}
+            >
+              Portfolio
+            </Link>
 
             <span>›</span>
             <span className="breadcrumb-current">{event.year}</span>
@@ -255,10 +226,12 @@ export default function EventPage() {
         </div>
       </header>
 
+      {/* ================== TITLE ================== */}
       <section className="event-title">
         <h1>Portfolio Details: {event.title}</h1>
       </section>
 
+      {/* ================== CONTENT ================== */}
       <main id="main">
         <section className="portfolio-details">
           <div className="portfolio-details-container">
@@ -284,17 +257,17 @@ export default function EventPage() {
                 </li>
                 {event.venue && (
                   <li>
-                    <strong>Event Venue:</strong> {event.venue}
+                    <strong>Venue:</strong> {event.venue}
                   </li>
                 )}
                 {event.date && (
                   <li>
-                    <strong>Event Date:</strong> {event.date}
+                    <strong>Date:</strong> {event.date}
                   </li>
                 )}
                 {event.url && (
                   <li>
-                    <strong>Event URL:</strong>{" "}
+                    <strong>URL:</strong>{" "}
                     <a href={event.url} target="_blank" rel="noreferrer">
                       Click to Visit
                     </a>

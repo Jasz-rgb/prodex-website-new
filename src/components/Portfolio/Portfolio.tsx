@@ -3,7 +3,36 @@ import { Link } from "react-router-dom";
 import { portfolioData, portfolioYears } from "./portfolioData";
 
 export default function Portfolio() {
-  const [activeIndex, setActiveIndex] = useState(0);
+  // const [activeIndex, setActiveIndex] = useState(0); onclick
+  const getYearFromUrl = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("year") || "All";
+  };
+  const yearFromUrl = getYearFromUrl();
+  // const [yearFromUrl, setYearFromUrl] = useState(getYearFromUrl());
+  // useEffect(() => {
+  //   const onPopState = () => {
+  //     setYearFromUrl(getYearFromUrl());
+  //   };
+
+  //   window.addEventListener("popstate", onPopState);
+  //   return () => window.removeEventListener("popstate", onPopState);
+  // }, []);
+
+
+  const initialIndex = portfolioYears.indexOf(yearFromUrl);
+  const [activeIndex, setActiveIndex] = useState(
+    initialIndex === -1 ? 0 : initialIndex
+  );
+  useEffect(() => {
+    const index = portfolioYears.indexOf(yearFromUrl);
+    if (index !== -1 && index !== activeIndex) {
+      setActiveIndex(index);
+    }
+  }, [yearFromUrl, activeIndex]);
+
+
+
   const activeYear = portfolioYears[activeIndex];
   
   const progress = (activeIndex / (portfolioYears.length - 1)) * 100;
@@ -14,18 +43,32 @@ export default function Portfolio() {
   }, [activeIndex]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") {
-        setActiveIndex((i) => (i === 0 ? portfolioYears.length - 1 : i - 1));
-      }
-      if (e.key === "ArrowRight") {
-        setActiveIndex((i) => (i === portfolioYears.length - 1 ? 0 : i + 1));
-      }
+    const handleKeyDown = (e) => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+
+      setActiveIndex((i) => {
+        const nextIndex =
+          e.key === "ArrowLeft"
+            ? i === 0
+              ? portfolioYears.length - 1
+              : i - 1
+            : i === portfolioYears.length - 1
+            ? 0
+            : i + 1;
+
+        const year = portfolioYears[nextIndex];
+        const params = new URLSearchParams();
+        if (year !== "All") params.set("year", year);
+
+        window.history.pushState({}, "", `/?${params.toString()}#portfolio`);
+        return nextIndex;
+      });
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
 
   const filteredData =
     activeYear === "All"
@@ -193,70 +236,51 @@ export default function Portfolio() {
 
         /* sparks container */
         .spark {
-        position: absolute;
-        right: -10px;
-        top: 50%;
+          position: absolute;
+          right: -10px;
+          top: 50%;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          transform: translateY(-50%);
 
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
+          background: radial-gradient(
+            circle,
+            #ffffff 0%,
+            #7ff6ff 30%,
+            #00e5ff 55%,
+            rgba(0, 229, 255, 0.35) 100%
+          );
 
-        background: radial-gradient(
-          circle,
-          #ffffff 0%,
-          #7ff6ff 30%,
-          #00e5ff 55%,
-          rgba(0, 229, 255, 0.35) 100%
-        );
+          pointer-events: none;
 
-        transform: translateY(-50%);
-        pointer-events: none;
+          box-shadow:
+            0 0 12px rgba(255, 255, 255, 1),
+            0 0 28px rgba(0, 229, 255, 0.9),
+            0 0 55px rgba(0, 229, 255, 0.7),
+            0 0 85px rgba(0, 229, 255, 0.4);
 
-        box-shadow:
-          0 0 12px rgba(255, 255, 255, 1),
-          0 0 28px rgba(0, 229, 255, 0.9),
-          0 0 55px rgba(0, 229, 255, 0.7),
-          0 0 90px rgba(0, 229, 255, 0.4);
+          animation: spark-burn 0.9s infinite ease-in-out;
+        }
+        @keyframes spark-burn {
+          0% {
+            opacity: 0.9;
+            filter: brightness(1);
+            transform: translateY(-50%) scale(0.9);
+          }
 
-        animation: spark-burn 0.9s infinite ease-in-out;
-      }
+          50% {
+            opacity: 1;
+            filter: brightness(1.5);
+            transform: translateY(-50%) scale(1.15);
+          }
 
-        transform: translateX(-50%);
-        pointer-events: none;
-
-        box-shadow:
-          0 0 12px rgba(255, 255, 255, 1),
-          0 0 28px rgba(0, 229, 255, 0.9),
-          0 0 55px rgba(0, 229, 255, 0.7),
-          0 0 85px rgba(0, 229, 255, 0.4);
-
-        animation: spark-burst 0.6s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
-      }
-
-
-      @keyframes spark-burn {
-      0% {
-        opacity: 0.9;
-        filter: brightness(1);
-        transform: translateY(-50%) scale(0.9);
-      }
-
-      50% {
-        opacity: 1;
-        filter: brightness(1.5);
-        transform: translateY(-50%) scale(1.15);
-      }
-
-      100% {
-        opacity: 0.85;
-        filter: brightness(1.1);
-        transform: translateY(-50%) scale(1);
-      }
-    }
-
-    }
-
-
+          100% {
+            opacity: 0.85;
+            filter: brightness(1.1);
+            transform: translateY(-50%) scale(1);
+          }
+        }
         @media (max-width: 1024px) {
           .portfolio-grid { column-count: 2; }
         }
@@ -297,7 +321,19 @@ export default function Portfolio() {
                 className={`timeline-year ${
                   index === activeIndex ? "active" : ""
                 }`}
-                onClick={() => setActiveIndex(index)}
+                onClick={() => {
+                  setActiveIndex(index);
+                  setYearFromUrl(year);
+
+                  const params = new URLSearchParams();
+                  if (year !== "All") params.set("year", year);
+
+                  window.history.pushState(
+                    {},
+                    "",
+                    `/?${params.toString()}#portfolio`
+                  );
+                }}
               >
                 {year}
               </button>
@@ -307,7 +343,15 @@ export default function Portfolio() {
 
         <div className="portfolio-grid">
           {filteredData.map((item) => (
-            <Link key={item.id} to={item.link} className="portfolio-card">
+            <Link
+              key={item.id}
+              to={
+                activeYear === "All"
+                  ? item.link
+                  : `${item.link}?fromYear=${activeYear}`
+              }
+              className="portfolio-card"
+            >
               <img src={item.image} alt={item.title} />
             </Link>
           ))}
