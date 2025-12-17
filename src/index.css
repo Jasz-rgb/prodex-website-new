@@ -1,1 +1,15 @@
+/* Reset browser defaults */
+* {
+  box-sizing: border-box;
+}
+
+/* Remove default body margin (THIS causes horizontal crop) */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  background: #050b10;
+}
 @import "tailwindcss";
