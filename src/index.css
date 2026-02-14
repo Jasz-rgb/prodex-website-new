@@ -3,7 +3,7 @@
   box-sizing: border-box;
 }
 
-/* Remove default body margin (THIS causes horizontal crop) */
+/* Remove default body margin */
 html,
 body {
   margin: 0;
@@ -11,5 +11,36 @@ body {
   width: 100%;
   overflow-x: hidden;
   background: #050b10;
+  color: #ffffff;
 }
+
 @import "tailwindcss";
+
+/* Define the colors for the Lovable Tailwind code */
+@layer base {
+  :root {
+    --background: 5 11 16; /* Matches your #050b10 */
+    --primary: 0 188 212; /* The ProDex Cyan */
+    --card: 17 21 28; /* Dark grey for the cards */
+    --border: 31 41 55; /* Subtle borders */
+    --muted-foreground: 156 163 175; /* Gray text for descriptions */
+    --cyan: 0 188 212; /* For the shadow variables */
+  }
+}
+
+/* Custom utility classes used by the Lovable component */
+.text-gradient {
+  background: linear-gradient(to right, #ffffff, #00bcd4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glow-box {
+  box-shadow: 0 0 20px rgba(0, 188, 212, 0.15);
+  transition: all 0.3s ease-in-out;
+}
+
+.glow-box:hover {
+  box-shadow: 0 0 35px rgba(0, 188, 212, 0.3);
+}
