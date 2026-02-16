@@ -3,7 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { Ring, Circle } from '@react-three/drei'
 import * as THREE from 'three'
 import heroVideo from '../assets/Hero_loop.mp4'
-
+//kharagpur
 const FloatingRing = ({ position, size, speed, offsets }) => {
   const groupRef = useRef()
 
@@ -95,8 +95,8 @@ const HeroSection = () => {
           href="https://www.google.com/maps/search/?api=1&query=IIT+Kharagpur"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center px-4 py-2 border border-[#00f0ff]/30 
-                     rounded-full text-[#00f0ff] text-sm mb-6 bg-[#00f0ff]/5 w-fit"
+          className="inline-flex items-center px-6 py-2 border border-[#00f0ff]/30 
+                     rounded-full text-[#00f0ff] text-lg mb-6 bg-[#00f0ff]/5 w-fit"
         >
           IIT Kharagpur
         </a>
